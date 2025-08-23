@@ -1,6 +1,6 @@
 import numpy as np
 import streamlit as st
-from tensorflow.keras.applications.mobilenet_v2 import (
+from keras.applications.mobilenet_v2 import (
     MobileNetV2,
     preprocess_input,
     decode_predictions
@@ -8,11 +8,13 @@ from tensorflow.keras.applications.mobilenet_v2 import (
 from PIL import Image, ImageOps
 
 
+# Load MobileNetV2 model with ImageNet weights
 def load_model():
     model = MobileNetV2(weights="imagenet")
     return model
 
 
+# Preprocess image for model
 def preprocess_image(image):
     img = image.convert("RGB")   # ensure 3 channels
     img = ImageOps.fit(img, (224, 224))  # resize with crop/pad
@@ -22,6 +24,7 @@ def preprocess_image(image):
     return img
 
 
+# Run classification
 def classify_image(model, image):
     try:
         processed_image = preprocess_image(image)
@@ -33,6 +36,7 @@ def classify_image(model, image):
         return None
 
 
+# Main Streamlit app
 def main():
     st.set_page_config(page_title="AI Image Classifier", page_icon="🖼️", layout="centered")
 
@@ -41,11 +45,12 @@ def main():
 
     @st.cache_resource
     def load_cached_model():
-        return load_model()
+        with st.spinner("Loading AI model... this may take a while ⏳"):
+            return load_model()
 
     model = load_cached_model()
 
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png"])
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
     if uploaded_file is not None:
         st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
