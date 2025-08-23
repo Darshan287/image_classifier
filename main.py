@@ -1,6 +1,6 @@
 import numpy as np
 import streamlit as st
-from keras.applications.mobilenet_v2 import (
+from tensorflow.keras.applications.mobilenet_v2 import (
     MobileNetV2,
     preprocess_input,
     decode_predictions
