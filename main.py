@@ -7,14 +7,20 @@ from tensorflow.keras.applications.mobilenet_v2 import (
 )
 from PIL import Image, ImageOps
 
-
-# Load MobileNetV2 model with ImageNet weights
+# -----------------------------
+# Load MobileNetV2 model
+# -----------------------------
 def load_model():
-    model = MobileNetV2(weights="imagenet")
-    return model
+    try:
+        model = MobileNetV2(weights="imagenet")
+        return model
+    except Exception as e:
+        st.error(f"Failed to load model: {e}")
+        return None
 
-
-# Preprocess image for model
+# -----------------------------
+# Preprocess uploaded image
+# -----------------------------
 def preprocess_image(image):
     img = image.convert("RGB")   # ensure 3 channels
     img = ImageOps.fit(img, (224, 224))  # resize with crop/pad
@@ -23,8 +29,9 @@ def preprocess_image(image):
     img = np.expand_dims(img, axis=0)
     return img
 
-
+# -----------------------------
 # Run classification
+# -----------------------------
 def classify_image(model, image):
     try:
         processed_image = preprocess_image(image)
@@ -35,13 +42,18 @@ def classify_image(model, image):
         st.error(f"Error classifying image: {str(e)}")
         return None
 
-
-# Main Streamlit app
+# -----------------------------
+# Streamlit App
+# -----------------------------
 def main():
-    st.set_page_config(page_title="AI Image Classifier", page_icon="🖼️", layout="centered")
+    st.set_page_config(
+        page_title="AI Image Classifier",
+        page_icon="🖼️",
+        layout="centered"
+    )
 
-    st.title("AI Image Classifier")
-    st.write("Upload an image and let AI tell you what is in it!")
+    st.title("🖼️ AI Image Classifier")
+    st.write("Upload an image and let AI tell you what it sees!")
 
     @st.cache_resource
     def load_cached_model():
@@ -56,14 +68,13 @@ def main():
         st.image(uploaded_file, caption="Uploaded Image", use_container_width=True)
         image = Image.open(uploaded_file)
 
-        if st.button("Classify Image"):
+        if st.button("🔍 Classify Image"):
             with st.spinner("Analyzing Image..."):
                 predictions = classify_image(model, image)
                 if predictions:
                     st.subheader("Predictions")
                     for _, label, score in predictions:
                         st.write(f"**{label}**: {score:.2%}")
-
 
 if __name__ == "__main__":
     main()
